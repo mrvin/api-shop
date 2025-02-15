@@ -1,0 +1,29 @@
+run:
+  tests: false
+
+linters-settings:
+  funlen:
+    lines: 150
+    statements: 80
+  cyclop:
+    max-complexity: 15
+
+linters:
+  disable-all: false
+  enable-all: true
+  disable:
+    - err113
+    - gochecknoglobals
+    - gochecknoinits
+    - godox
+    - gofumpt
+    - gomnd
+    - lll
+    - nakedret
+    - nlreturn
+    - wsl
+    - gomodguard
+    - varnamelen
+    - depguard
+    - exportloopref
+

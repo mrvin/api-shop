@@ -1,0 +1,38 @@
+package handlers
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+	"net/http"
+
+	"github.com/mrvin/api-shop/internal/logger"
+	httpresponse "github.com/mrvin/api-shop/pkg/http/response"
+)
+
+type ProductBuyer interface {
+	BuyProduct(ctx context.Context, userName, productName string) error
+}
+
+func NewBuyProduct(buyer ProductBuyer) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		userName, err := logger.GetUserNameFromCtx(req.Context())
+		if err != nil {
+			err := fmt.Errorf("get user name from ctx: %w", err)
+			slog.ErrorContext(req.Context(), "Buy product: "+err.Error())
+			httpresponse.WriteError(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		productName := req.PathValue("productName")
+
+		if err := buyer.BuyProduct(req.Context(), userName, productName); err != nil {
+			slog.ErrorContext(req.Context(), "Buy product: "+err.Error())
+			httpresponse.WriteError(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		res.WriteHeader(http.StatusOK)
+
+		slog.InfoContext(req.Context(), "The purchase was successful")
+	}
+}
