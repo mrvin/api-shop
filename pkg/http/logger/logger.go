@@ -4,6 +4,9 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/mrvin/api-shop/internal/logger"
 )
 
 type LoggingResponseWriter struct {
@@ -33,7 +36,11 @@ type Logger struct {
 }
 
 func (l *Logger) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	requestID := uuid.New().String()
+	ctx := logger.WithRequestID(req.Context(), requestID)
+
 	logReq := slog.With(
+		slog.String("request_id", requestID),
 		slog.String("method", req.Method),
 		slog.String("path", req.URL.Path),
 		slog.String("addr", req.RemoteAddr),
@@ -48,5 +55,5 @@ func (l *Logger) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		)
 	}()
 
-	l.Inner.ServeHTTP(lrw, req)
+	l.Inner.ServeHTTP(lrw, req.WithContext(ctx))
 }

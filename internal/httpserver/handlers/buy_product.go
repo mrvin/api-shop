@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -24,6 +25,12 @@ func NewBuyProduct(buyer ProductBuyer) http.HandlerFunc {
 			return
 		}
 		productName := req.PathValue("productName")
+		if productName == "" {
+			err := errors.New("empty product name")
+			slog.ErrorContext(req.Context(), "Buy product: "+err.Error())
+			httpresponse.WriteError(res, err.Error(), http.StatusBadRequest)
+			return
+		}
 
 		if err := buyer.BuyProduct(req.Context(), userName, productName); err != nil {
 			slog.ErrorContext(req.Context(), "Buy product: "+err.Error())
@@ -31,7 +38,7 @@ func NewBuyProduct(buyer ProductBuyer) http.HandlerFunc {
 			return
 		}
 
-		res.WriteHeader(http.StatusOK)
+		httpresponse.WriteOK(res, http.StatusOK)
 
 		slog.InfoContext(req.Context(), "The purchase was successful")
 	}

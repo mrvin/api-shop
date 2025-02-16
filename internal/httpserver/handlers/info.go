@@ -22,6 +22,7 @@ type InfoResponse struct {
 	Coins       uint64                    `json:"coins"`
 	Inventory   []storage.ProductQuantity `json:"inventory"`
 	CoinHistory storage.HistoryResponse   `json:"coinHistory"`
+	Status      string                    `json:"status"`
 }
 
 func NewInfo(getter InfoGetter) http.HandlerFunc {
@@ -61,8 +62,8 @@ func NewInfo(getter InfoGetter) http.HandlerFunc {
 			Coins:       balance,
 			Inventory:   inventory,
 			CoinHistory: history,
+			Status:      "OK",
 		}
-
 		jsonResponse, err := json.Marshal(&response)
 		if err != nil {
 			err := fmt.Errorf("marshal response: %w", err)
@@ -70,7 +71,6 @@ func NewInfo(getter InfoGetter) http.HandlerFunc {
 			httpresponse.WriteError(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
 		res.Header().Set("Content-Type", "application/json")
 		res.WriteHeader(http.StatusOK)
 		if _, err := res.Write(jsonResponse); err != nil {

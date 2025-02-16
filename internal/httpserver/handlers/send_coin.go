@@ -34,7 +34,6 @@ func NewSendCoin(sender CoinSender) http.HandlerFunc {
 		}
 		// Read json request
 		var request SendCoinRequest
-
 		body, err := io.ReadAll(req.Body)
 		defer req.Body.Close()
 		if err != nil {
@@ -43,7 +42,6 @@ func NewSendCoin(sender CoinSender) http.HandlerFunc {
 			httpresponse.WriteError(res, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		if err := json.Unmarshal(body, &request); err != nil {
 			err := fmt.Errorf("unmarshal body request: %w", err)
 			slog.ErrorContext(req.Context(), err.Error())
@@ -56,7 +54,6 @@ func NewSendCoin(sender CoinSender) http.HandlerFunc {
 			ToUser:   request.ToUser,
 			Amount:   request.Amount,
 		}
-
 		if err := sender.SendCoin(req.Context(), &transaction); err != nil {
 			err := fmt.Errorf("send coin: %w", err)
 			slog.Error(err.Error())
@@ -72,7 +69,7 @@ func NewSendCoin(sender CoinSender) http.HandlerFunc {
 			return
 		}
 
-		res.WriteHeader(http.StatusOK)
+		httpresponse.WriteOK(res, http.StatusOK)
 
 		slog.InfoContext(req.Context(), "Transaction was successful")
 	}

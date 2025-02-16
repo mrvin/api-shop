@@ -87,10 +87,10 @@ func GetUserNameFromCtx(ctx context.Context) (string, error) {
 
 func (h ContextHandler) Handle(ctx context.Context, r slog.Record) error {
 	if requestID, ok := ctx.Value(contextKeyRequestID).(string); ok {
-		r.Add("requestID", requestID)
+		r.Add("request_id", requestID)
 	}
 	if userName, ok := ctx.Value(contextKeyUserName).(string); ok {
-		r.Add("userName", userName)
+		r.Add("username", userName)
 	}
 
 	return h.Handler.Handle(ctx, r) //nolint:wrapcheck

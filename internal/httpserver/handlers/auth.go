@@ -27,14 +27,14 @@ type AuthRequest struct {
 }
 
 type AuthResponse struct {
-	Token string `json:"token"` // JWT-токен для доступа к защищенным ресурсам.
+	Token  string `json:"token"` // JWT-токен для доступа к защищенным ресурсам.
+	Status string `json:"status"`
 }
 
 func NewAuth(conf *app.Conf, account Account, a *auth.AuthService) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
-		var request AuthRequest
-
 		// Read json request
+		var request AuthRequest
 		body, err := io.ReadAll(req.Body)
 		defer req.Body.Close()
 		if err != nil {
@@ -50,6 +50,7 @@ func NewAuth(conf *app.Conf, account Account, a *auth.AuthService) http.HandlerF
 			httpresponse.WriteError(res, err.Error(), http.StatusBadRequest)
 			return
 		}
+
 		acc, err := account.GetAccount(req.Context(), request.Username)
 		if err != nil {
 			if errors.Is(err, storage.ErrAccountNotFound) {
@@ -67,7 +68,7 @@ func NewAuth(conf *app.Conf, account Account, a *auth.AuthService) http.HandlerF
 					return
 				}
 				slog.InfoContext(req.Context(), "Create new account",
-					slog.String("Username", request.Username),
+					slog.String("username", request.Username),
 				)
 			} else {
 				err := fmt.Errorf("get account: %w", err)
@@ -93,9 +94,9 @@ func NewAuth(conf *app.Conf, account Account, a *auth.AuthService) http.HandlerF
 
 		// Write json response
 		response := AuthResponse{
-			Token: tokenString,
+			Token:  tokenString,
+			Status: "OK",
 		}
-
 		jsonResponse, err := json.Marshal(&response)
 		if err != nil {
 			err := fmt.Errorf("marshal response: %w", err)
@@ -103,14 +104,21 @@ func NewAuth(conf *app.Conf, account Account, a *auth.AuthService) http.HandlerF
 			httpresponse.WriteError(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
 		res.Header().Set("Content-Type", "application/json")
-		res.WriteHeader(http.StatusOK)
+		if acc == nil {
+			res.WriteHeader(http.StatusCreated)
+		} else {
+			res.WriteHeader(http.StatusOK)
+		}
 		if _, err := res.Write(jsonResponse); err != nil {
 			err := fmt.Errorf("write response: %w", err)
 			slog.ErrorContext(req.Context(), "Auth: "+err.Error())
 			httpresponse.WriteError(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		slog.InfoContext(req.Context(), "Create token",
+			slog.String("username", request.Username),
+		)
 	}
 }

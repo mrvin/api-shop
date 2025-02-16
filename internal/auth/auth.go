@@ -47,7 +47,7 @@ func (a *AuthService) Auth(next http.HandlerFunc) http.HandlerFunc {
 		authHeaderValue := req.Header.Get("Authorization")
 		const bearerPrefix = "Bearer "
 		if !strings.HasPrefix(authHeaderValue, bearerPrefix) {
-			http.Error(res, "request does not contain an Authorization Bearer token", http.StatusUnauthorized)
+			http.Error(res, "request does not contain an authorization bearer token", http.StatusUnauthorized)
 			return
 		}
 		tokenString := strings.TrimPrefix(authHeaderValue, bearerPrefix)

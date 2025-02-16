@@ -1,6 +1,4 @@
-# **Тестовое задание для стажёра Backend-направления (зимняя волна 2025)**
-
-## Магазин мерча
+# ** Магазин мерча**
 
 В Авито существует внутренний магазин мерча, где сотрудники могут приобретать товары за монеты (coin). Каждому новому сотруднику выделяется 1000 монет, которые можно использовать для покупки товаров. Кроме того, монеты можно передавать другим сотрудникам в знак благодарности или как подарок.
 
@@ -61,13 +59,13 @@
  
 Для **деплоя зависимостей и самого сервиса** используйте Docker Compose. Порт доступа к сервису должен быть 8080 и быть доступен снаружи как `localhost:8080`.
 
-#### Сборка и запуск приложения в Docker Compose
+## **Сборка и запуск приложения в Docker Compose**
 ```shell script
 $ make run
 ...............
 ```
 
-#### Пример использования HTTP API
+## **Пример использования HTTP API**
 ```shell script
 $ curl -X 'POST' 'http://localhost:8080/api/auth' \
   -H 'Content-Type: application/json' \
@@ -76,7 +74,8 @@ $ curl -X 'POST' 'http://localhost:8080/api/auth' \
   	"password": "qwerty"
 }'
 {
-	"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk2MzcwODEsImlhdCI6MTczOTYzNjc4MSwidXNlcm5hbWUiOiJCb2IifQ.VTlSCG-dPg15S_F6AQYrMm6iUL4YGendt48UBmfY38s"
+	"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk2MzcwODEsImlhdCI6MTczOTYzNjc4MSwidXNlcm5hbWUiOiJCb2IifQ.VTlSCG-dPg15S_F6AQYrMm6iUL4YGendt48UBmfY38s",
+	"status": "OK"
 }
 
 $ curl -X 'POST' 'http://localhost:8080/api/auth' \
@@ -86,7 +85,8 @@ $ curl -X 'POST' 'http://localhost:8080/api/auth' \
   	"password": "qwerty"
 }'
 {
-	"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk2MzcxMDIsImlhdCI6MTczOTYzNjgwMiwidXNlcm5hbWUiOiJBbGljZSJ9.8Q6tvQOzggdBstorK-2Y-cQVMDk7_tLNly33UmQkIME"
+	"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk2MzcxMDIsImlhdCI6MTczOTYzNjgwMiwidXNlcm5hbWUiOiJBbGljZSJ9.8Q6tvQOzggdBstorK-2Y-cQVMDk7_tLNly33UmQkIME",
+	"status":"OK"
 }
 
 $ curl -X 'POST' 'http://localhost:8080/api/sendCoin' \
@@ -96,15 +96,54 @@ $ curl -X 'POST' 'http://localhost:8080/api/sendCoin' \
   "toUser": "Alice",
   "amount": 500
 }'
+{
+	"status":"OK"
+}
 
 $ curl -X 'GET' 'http://localhost:8080/api/buy/pink-hoody' \
   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk2MzcxMDIsImlhdCI6MTczOTYzNjgwMiwidXNlcm5hbWUiOiJBbGljZSJ9.8Q6tvQOzggdBstorK-2Y-cQVMDk7_tLNly33UmQkIME'
+{
+	"status":"OK"
+}
 
 $ curl -X 'GET' 'http://localhost:8080/api/info' \
   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk2MzcwODEsImlhdCI6MTczOTYzNjc4MSwidXNlcm5hbWUiOiJCb2IifQ.VTlSCG-dPg15S_F6AQYrMm6iUL4YGendt48UBmfY38s'
+{
+	"coins": 500,
+	"inventory": [],
+	"coinHistory": {
+		"received": [],
+		"sent": [
+			{
+				"toUser": "Alice",
+				"amount": 500
+			}
+		]
+	},
+	"status": "OK"
+}
 
 $ curl -X 'GET' 'http://localhost:8080/api/info' \
   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mzk2MzcxMDIsImlhdCI6MTczOTYzNjgwMiwidXNlcm5hbWUiOiJBbGljZSJ9.8Q6tvQOzggdBstorK-2Y-cQVMDk7_tLNly33UmQkIME'
+{
+	"coins": 1000,
+	"inventory": [
+		{
+			"type": "pink-hoody",
+			"quantity": 1
+		}
+	],
+	"coinHistory": {
+		"received": [
+			{
+				"fromUser": "Bob",
+				"amount": 500
+			}
+		],
+		"sent": []
+	},
+  	"status": "OK"
+}
 
 ```
 
